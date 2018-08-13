@@ -34,8 +34,10 @@ the trend is shifting downwards, and so is a sell signal.
 
 This algorithm purchases as many shares as possible on a buy signal, and holds until 
 a sell signal, at which point it cashes out all the shares for liquid capital. This
-repeats until we have reached the final date of data in the simulation, at which point,
+repeats until we have reached the final date of the simulation, at which point,
 the entire portfolio is cashed out and profits/losses are calculated accordingly.
+
+This algorithm can compute simple moving averages using {open, high, low, close} prices.
 '''
 def simple_sma_trade(starting_capital, short_term_N, long_term_N, ticker, start_date, end_date, price_type='close'):
 

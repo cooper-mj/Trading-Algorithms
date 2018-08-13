@@ -8,6 +8,7 @@ from termcolor import colored, cprint
 from simple_sma import simple_sma_trade
 from buy_and_hold import buy_and_hold
 from stochastic_oscillator import stochastic_oscillator
+from price_crossover import sma_price_crossover
 
 if __name__ == "__main__":
 
@@ -19,6 +20,7 @@ if __name__ == "__main__":
 
 	if defaults.lower() == "y":
 		simple_sma_trade(1000, 30, 90, ticker, datetime(2015, 1, 25), datetime(2018, 8, 1))
+		sma_price_crossover(1000, 30, ticker, datetime(2015, 1, 25), datetime(2018, 8, 1))
 		buy_and_hold(1000, ticker, datetime(2015, 1, 25), datetime(2018, 8, 1))
 		stochastic_oscillator(1000, ticker, datetime(2015, 1, 25), datetime(2018, 8, 1), 14)
 

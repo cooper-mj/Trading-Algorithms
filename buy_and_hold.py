@@ -23,6 +23,8 @@ def buy_and_hold(starting_capital, ticker, start_date, end_date, price_type='clo
 	try:
 		start_price = float(df.loc[df["date"] == start_date.strftime("%Y-%m-%d")][price_type].iloc[0])
 	except (KeyError, IndexError):
+		# If the exact start date is not in our database, print an error message, and set start_date to be the next date
+		# that appears in the database.
 		new_start_date = min(date for date in df["date"] if date > start_date.strftime("%Y-%m-%d"))
 		print("Your selected start date was not found in the database. Starting on " + new_start_date + " instead of " + start_date.strftime("%Y-%m-%d") + ".")
 		start_price = float(df.loc[df["date"] == new_start_date][price_type].iloc[0])
@@ -30,6 +32,8 @@ def buy_and_hold(starting_capital, ticker, start_date, end_date, price_type='clo
 	try:
 		end_price = float(df.loc[df["date"] == end_date.strftime("%Y-%m-%d")][price_type].iloc[0])
 	except (KeyError, IndexError):
+		# If the exact end date is not in our database, print an error message, and set end_date to be the previous date
+		# that appears in the database.
 		new_end_date = max(date for date in df["date"] if date < end_date.strftime("%Y-%m-%d"))
 		print("Your selected end date was not found in the database. Ending on " + new_end_date + " instead of " + end_date.strftime("%Y-%m-%d") + ".")
 		end_price = float(df.loc[df["date"] == new_end_date][price_type].iloc[0])
