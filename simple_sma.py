@@ -3,10 +3,15 @@ from datetime import datetime
 from datetime import timedelta
 from termcolor import colored, cprint
 
+'''
+Returns an N-day simple moving average from the current date, using price_type
+to determine the daily pricing to add into the average (price_type is in the 
+set {open, high, low, close}).
+'''
 def N_day_sma(N, dataframe, date, start_date, price_type):
 	# Check to make sure we can take an N day moving average with the data
 	# given - e.g. we can't take a 90-day average if we only have data
-	# for 5 days.
+	# for the past 5 days.
 	delta = date - start_date
 	if delta.days < N:
 		return -1
@@ -18,7 +23,20 @@ def N_day_sma(N, dataframe, date, start_date, price_type):
 
 	return rows[price_type].mean()
 
+'''
+Uses two simple moving averages to determine buy and sell signals, and managers a
+portfolio of initial capital starting_capital accordingly.
 
+When the shorter-term moving average crosses above the longer-term moving average,
+it indicates the trend is shifting upwards, and so is a buy signal. Likewise, when the 
+shorter-term moving average crosses below the longer-term moving average, it indicates
+the trend is shifting downwards, and so is a sell signal.
+
+This algorithm purchases as many shares as possible on a buy signal, and holds until 
+a sell signal, at which point it cashes out all the shares for liquid capital. This
+repeats until we have reached the final date of data in the simulation, at which point,
+the entire portfolio is cashed out and profits/losses are calculated accordingly.
+'''
 def simple_sma_trade(starting_capital, short_term_N, long_term_N, ticker, start_date, end_date, price_type='close'):
 
 	print("")
@@ -26,7 +44,7 @@ def simple_sma_trade(starting_capital, short_term_N, long_term_N, ticker, start_
 	cprint("Short term SMA: " + str(short_term_N) + " days.", color='cyan')
 	cprint("Long term SMA: " + str(long_term_N) + " days.", color='cyan')
 
-	# Credit to Hugo Rodger Brown (StackOverFlow) for this constructor notation: https://stackoverflow.com/questions/7274267/print-all-day-dates-between-two-dates
+	# Acknowledgement: Hugo Rodger Brown (StackOverFlow) for this constructor notation: https://stackoverflow.com/questions/7274267/print-all-day-dates-between-two-dates
 	date_range = [start_date + timedelta(days=x) for x in range((end_date-start_date).days + 1)]
 
 	# Import stock data in the desired date range
