@@ -3,6 +3,13 @@ from datetime import datetime
 from datetime import timedelta
 from termcolor import colored, cprint
 
+'''
+On start_date, this function buys as many shares of a specific stock as 
+possible with the given starting capital, then holds those shares, selling
+them only on the end_date of the simulation. This algorithm is configured to
+buy and sell using closing prices as a default, but can compute prices using any of
+the {open, high, low, close} market prices.
+'''
 def buy_and_hold(starting_capital, ticker, start_date, end_date, price_type='close'):
 	
 	print("")
@@ -29,7 +36,8 @@ def buy_and_hold(starting_capital, ticker, start_date, end_date, price_type='clo
 
 	start_date = start_date.strftime("%Y-%m-%d")
 	end_date = end_date.strftime("%Y-%m-%d")
-	# Buy initially
+
+	# Buy shares on start_date
 	capital = starting_capital
 	num_shares = float(capital) / start_price
 	buy_msg = colored("Buying " + str(round(num_shares, 2)) + " at " + str(round(start_price, 2)) + " for " + str(round(capital, 2)), 'green')
@@ -37,7 +45,7 @@ def buy_and_hold(starting_capital, ticker, start_date, end_date, price_type='clo
 	capital = 0
 
 
-	# Sell finally
+	# Sell shares on end_date
 	capital = num_shares * end_price
 	sell_msg = colored("Selling " + str(round(num_shares, 2)) + " at " + str(round(end_price, 2)) + " for " + str(round(capital, 2)), 'red')
 	print(end_date + " : " + sell_msg)
