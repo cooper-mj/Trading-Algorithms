@@ -77,7 +77,7 @@ def rsi(starting_capital, period, sell_bound, buy_bound, ticker, start_date, end
 			continue
 
 		if rsi > sell_bound:
-			# If RSI > 70 - sell signal
+			# If RSI > selling bound - sell signal
 			if not liquid:
 				liquid = True
 				capital = num_shares * price
@@ -97,7 +97,7 @@ def rsi(starting_capital, period, sell_bound, buy_bound, ticker, start_date, end
 
 
 		elif rsi < buy_bound:
-			# If RSI < 30 - buy signal
+			# If RSI < buying bound - buy signal
 			if liquid:
 				liquid = False
 				num_shares = float(capital) / price
