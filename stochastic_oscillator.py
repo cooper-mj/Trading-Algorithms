@@ -62,6 +62,9 @@ def stochastic_oscillator(starting_capital, ticker, start_date, end_date, period
 				else:
 					correct[1] += 1
 		
+				previous_price = price
+
+		
 		elif K > high_reading_bound:
 			# Sell signal
 			if not liquid:
@@ -80,7 +83,7 @@ def stochastic_oscillator(starting_capital, ticker, start_date, end_date, period
 				else:
 					correct[1] += 1
 
-		previous_price = price
+				previous_price = price
 
 	if capital == 0:
 		# Sell the remaining shares usig the final date's price

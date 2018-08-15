@@ -91,6 +91,8 @@ def sma_price_crossover(starting_capital, short_term_N, ticker, start_date, end_
 				else:
 					correct[1] += 1
 
+				previous_price = price
+
 		else:
 			# If price > short_term - buy signal, as it is trending up
 			if liquid:
@@ -109,7 +111,7 @@ def sma_price_crossover(starting_capital, short_term_N, ticker, start_date, end_
 				else:
 					correct[1] += 1
 
-		previous_price = price
+				previous_price = price
 
 	if capital == 0:
 		# Sell the remaining shares usig the final date's price

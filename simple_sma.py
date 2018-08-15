@@ -64,7 +64,7 @@ def simple_sma_trade(starting_capital, short_term_N, long_term_N, ticker, start_
 	for date in date_range:
 		try:
 			price = float(df.loc[df["date"] == date.strftime("%Y-%m-%d")][price_type].iloc[0])
-			#at[date.strftime("%Y-%m-%d"), price_type]
+
 		except (KeyError, IndexError):
 			continue
 
@@ -93,6 +93,9 @@ def simple_sma_trade(starting_capital, short_term_N, long_term_N, ticker, start_
 				else:
 					correct[1] += 1
 
+				previous_price = price
+
+
 		else:
 			# If long_term > short_term - buy signal
 			if liquid:
@@ -111,7 +114,7 @@ def simple_sma_trade(starting_capital, short_term_N, long_term_N, ticker, start_
 				else:
 					correct[1] += 1
 
-		previous_price = price
+				previous_price = price
 
 	if capital == 0:
 		# Sell the remaining shares usig the final date's price
