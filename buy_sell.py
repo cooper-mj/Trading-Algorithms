@@ -1,9 +1,15 @@
-
-
 from termcolor import colored, cprint
 from datetime import datetime
 
-
+'''
+Simulates the complete liquidation of a single-equity portfolio. This function
+computes how much capital the equity could be sold for, prints a message indicating
+that the equity has been sold, and updates the liquid (whether the portfolio consists
+of cash or equities), capital, num_shares, and previous_price (a variable used for checking
+how many of the trend predictions used by the indicator ended up being accurate) variables
+accordingly. It returns these values as a tuple so that the caller function may make use of
+them after this function has modified them.
+'''
 def sell(liquid, date, ticker, capital, num_shares, price, previous_price, correct):
 
 	liquid = True
@@ -22,9 +28,15 @@ def sell(liquid, date, ticker, capital, num_shares, price, previous_price, corre
 		correct[1] += 1
 	previous_price = price
 
-	return (liquid, capital, num_shares)
+	return (liquid, capital, num_shares, previous_price)
 
-
+'''
+Simulates the purchase of a single-equity portfolio. This function computes
+how many shares the capital in the portfolio could be exchanged for, then
+updates the the liquid, capital, num_shares, and previous_price variables
+accordingly. It returns these values as a tuple so that the caller function may make use of
+them after this function has modified them.
+'''
 def buy(liquid, date, ticker, capital, num_shares, price, previous_price, correct):
 
 	liquid = False
@@ -41,5 +53,6 @@ def buy(liquid, date, ticker, capital, num_shares, price, previous_price, correc
 		correct[1] += 1
 	else:
 		correct[1] += 1
+	previous_price = price
 
-	return (liquid, capital, num_shares)
+	return (liquid, capital, num_shares, previous_price)
