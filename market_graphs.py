@@ -55,9 +55,9 @@ def rsi_graph(period, start_date, end_date, sell_bound, buy_bound, ticker):
 
 if __name__ == "__main__":
 	#Sample use
-	price_graph(datetime(2015, 1, 25), datetime(2018, 8, 1), "GS")
+	price_graph(datetime(2015, 1, 25), datetime(2015, 2, 10), "AMZN")
 	#sma_graph(20, datetime(2015, 1, 25), datetime(2018, 8, 1), "GS")
-	rsi_graph(14, datetime(2015, 1, 25), datetime(2018, 8, 1), 70, 30, "GS")
+	# rsi_graph(14, datetime(2015, 1, 25), datetime(2018, 8, 1), 70, 30, "GS")
 
 	plt.show()
 
