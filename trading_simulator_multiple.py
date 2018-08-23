@@ -4,12 +4,12 @@ from datetime import timedelta
 from termcolor import colored, cprint
 
 # Import indicator algorithms
-from simple_sma import simple_sma
-from buy_and_hold import buy_and_hold
-from stochastic_oscillator import stochastic_oscillator
-from price_crossover import price_crossover
-from relative_strength_index import rsi
-from bollinger_bands import bollinger_bands
+from Indicators import simple_sma
+from Indicators import buy_and_hold
+from Indicators import stochastic_oscillator
+from Indicators import price_crossover
+from Indicators import rsi
+from Indicators import bollinger_bands
 
 # Import buy/sell functions
 from buy_sell_multiple import buy_from_cash
@@ -142,4 +142,29 @@ def multiple_equity_simulator(starting_capital, signal_date_range, start_date, e
 	# cash out our portfolio.
 	cash_out_portfolio(portfolio, date, equity_data, end_date, price_type, capital)
 
+
+
+if __name__ == "__main__":
+
+	# Launch interface
+
+	defaults = input("Run with default settings? (y/n): ")
+	while not defaults.lower() in ["y", "n"]:
+		print("You did not enter a valid response.")
+		defaults = input("Run with default settings? (y/n): ")
+
+	if defaults.lower() == "y":
+		multiple_equity_simulator(1000, 7, datetime(2015, 1, 25), datetime(2018, 8, 1))
+
+	elif defaults.lower() == "n":
+		user_input = []
+		print("Please enter syntactically valid Python code on the following lines, to call the desired simulator with your desired parameters.")
+		command = input("")
+		user_input.append(command)
+		while not command == "":
+			command = input("")
+			user_input.append(command)
+
+		for command in user_input:
+			exec(command)
 
