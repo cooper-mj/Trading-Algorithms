@@ -5,12 +5,13 @@ from datetime import timedelta
 from termcolor import colored, cprint
 
 # Import indicator algorithms
-from simple_sma import simple_sma
-from buy_and_hold import buy_and_hold
-from stochastic_oscillator import stochastic_oscillator
-from price_crossover import price_crossover
-from relative_strength_index import rsi
-from bollinger_bands import bollinger_bands
+from Indicators import simple_sma
+from Indicators import buy_and_hold
+from Indicators import stochastic_oscillator
+from Indicators import price_crossover
+from Indicators import rsi
+from Indicators import bollinger_bands
+from Indicators import money_flow_index
 
 # Import functions for buying and selling a single equity
 from buy_sell_single import sell
@@ -71,7 +72,8 @@ def single_equity_simulator(starting_capital, ticker, start_date, end_date, pric
 	# use, the sell bound, and the buy bound). At the top of each indicator function, these
 	# values are extracted. Peruse the code for your desired indicator function to see exactly
 	# which parameters it takes into its tuple.
-	indicators_to_use = {stochastic_oscillator: (20, 80, 14), simple_sma: (30, 90), buy_and_hold: (), price_crossover: (30,), rsi: (30, 70, 30)}
+	indicators_to_use = {money_flow_index: (14, 80, 20)}
+	#{stochastic_oscillator: (20, 80, 14), simple_sma: (30, 90), buy_and_hold: (), price_crossover: (30,), rsi: (30, 70, 30)}
 
 	for indicator in indicators_to_use.keys():
 
@@ -145,8 +147,7 @@ if __name__ == "__main__":
 		defaults = input("Run with default settings? (y/n): ")
 
 	if defaults.lower() == "y":
-		#single_equity_simulator(1000, ticker, datetime(2015, 1, 25), datetime(2018, 8, 1))
-		multiple_equity_simulator(1000, 7, datetime(2015, 1, 25), datetime(2015, 6, 2))
+		single_equity_simulator(1000, ticker, datetime(2015, 1, 25), datetime(2018, 8, 1))
 
 
 	elif defaults.lower() == "n":
