@@ -7,3 +7,4 @@ from .price_crossover import price_crossover
 from .relative_strength_index import rsi
 from .bollinger_bands import bollinger_bands
 from .money_flow_index import money_flow_index
+from .momentum import momentum

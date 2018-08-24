@@ -12,6 +12,7 @@ from Indicators import price_crossover
 from Indicators import rsi
 from Indicators import bollinger_bands
 from Indicators import money_flow_index
+from Indicators import momentum
 
 # Import functions for buying and selling a single equity
 from buy_sell_single import sell
@@ -51,6 +52,16 @@ def print_introduction_message(indicator, indicators_to_use):
 		cprint("Stochastic Oscillator Algorithm:", attrs=['underline', 'bold'])
 		cprint("Period Length: " + str(indicators_to_use[stochastic_oscillator][2]) + " days.", color='cyan')
 
+	elif indicator == money_flow_index:
+		cprint("Money Flow Index Algorithm:", attrs=['underline', 'bold'])
+		cprint("Period Length: " + str(indicators_to_use[money_flow_index][0]) + " days.", color='cyan')
+		cprint("Sell Bound: " + str(indicators_to_use[money_flow_index][1]), color='cyan')
+		cprint("Buy Bound: " + str(indicators_to_use[money_flow_index][2]), color='cyan')
+
+	elif indicator == momentum:
+		cprint("Money Flow Index Algorithm:", attrs=['underline', 'bold'])
+		cprint("Period Length: " + str(indicators_to_use[momentum][0]) + " days.", color='cyan')
+
 '''
 Uses a simple trading strategy to manage a portfolio of capital starting_capital
 between the dates start_date and end_date. It only trades a single equity, represented
@@ -72,7 +83,8 @@ def single_equity_simulator(starting_capital, ticker, start_date, end_date, pric
 	# use, the sell bound, and the buy bound). At the top of each indicator function, these
 	# values are extracted. Peruse the code for your desired indicator function to see exactly
 	# which parameters it takes into its tuple.
-	indicators_to_use = {money_flow_index: (14, 80, 20)}
+	indicators_to_use = {momentum: (12,)}
+	#{money_flow_index: (14, 80, 20)}
 	#{stochastic_oscillator: (20, 80, 14), simple_sma: (30, 90), buy_and_hold: (), price_crossover: (30,), rsi: (30, 70, 30)}
 
 	for indicator in indicators_to_use.keys():
