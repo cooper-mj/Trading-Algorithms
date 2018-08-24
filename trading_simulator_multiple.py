@@ -2,6 +2,9 @@ from iexfinance import get_historical_data
 from datetime import datetime
 from datetime import timedelta
 from termcolor import colored, cprint
+from threading import Thread
+from threading import RLock
+from threading import current_thread
 
 # Import indicator algorithms
 from Indicators import simple_sma
@@ -10,6 +13,8 @@ from Indicators import stochastic_oscillator
 from Indicators import price_crossover
 from Indicators import rsi
 from Indicators import bollinger_bands
+from Indicators import money_flow_index
+from Indicators import momentum
 
 # Import buy/sell functions
 from buy_sell_multiple import buy_from_cash
@@ -17,41 +22,82 @@ from buy_sell_multiple import redistribute_from_equity
 from buy_sell_multiple import cash_out_portfolio
 
 '''
-Upon being passed in an equity, its data, and a set of indicators,
-this function applies each indicator to the equity, starting with 
-the current day. If the indicator indicates the stock should be bought,
+Wrapper function for running each indicator on a given equity
+on a given date. 
+
+If the indicator indicates the stock should be bought,
 it increments buy_sell_count; if the indicator indicates that the stock
 should be sold, it decrements buy_sell_count. If the indicator is
 inconclusive, the function re-applies the indicator to the equity on the
-previous day (and repeats this signal_date_range times, at which point it
-stops). It then returns buy_sell_count.
+previous day (and repeats this at most signal_date_range times, at which 
+point it concludes). This design choice was made since the probability that
+multiple indicators would all agree on a single date is rather low; there is
+a higher probability they would agree within a range of dates. 
+'''
+def run_indicator(indicator, data, date, equity, unique_properties, signal_date_range, counter):
+
+	indicator_date_range = [date - timedelta(days = x) for x in range(0, signal_date_range)]
+
+	# We invert the indicator_date_range so that the most recent indication (on which the loop
+	# would short circuit) is the first one read, which is likely to be most accurate
+	# given the data.
+	for range_date in reversed(indicator_date_range):
+
+		# We short citcuit this loop to give a binary view of whether or not we should
+		# be buying or selling this equity. If, for example, an indicator indicated
+		# "SELL" for 8 days in a row, we don't want this repeated "SELL" value to skew
+		# our count value. Consistency of a result over time does not imply that we are
+		# more sure of that result on the given date.
+
+		if indicator(data, date, equity, unique_properties) == "SELL":
+			lock.acquire()
+			counter[0] -= 1
+			lock.release()
+			return
+
+		elif indicator(data, date, equity, unique_properties) == "BUY":
+			lock.acquire()
+			counter[0] += 1
+			lock.release()
+			return
+
+'''
+Upon being passed in an equity, its data, and a set of indicators,
+this function starts one thread per indicator, then applies each 
+indicator over a range of dates to the equity (each in its own 
+thread), starting on the current day, according to the application
+sequence described above in run_indicator.
+
+run_indicator increments/decrements buy_sell_count (incrementing for each
+indicator that returns "BUY" on the equity over the given date range, 
+decrementig for each indicator that returns "SELL" on the equity over the
+given date range). This function waits for all threads to finish, then, 
+when a final value for buy_sell_count has been determined, it returns 
+buy_sell_count.
 '''
 def find_buy_sell_count(equity, equity_data, indicators_to_use, date, signal_date_range):
-	buy_sell_count = 0 # This count increases with each "BUY"; decreases with each "SELL"
+	buy_sell_count = [0] # This count increases with each "BUY"; decreases with each "SELL"; it is a list
+						 # so that it may be passed into child functions and incremented/decremented within
+						 # those functions.
+	threads = []
+
+	# Locks access to buy_sell_count to avoid race conditions (not that any race
+	# conditions *should* occur without the lock, but this is mostly just to be
+	# extra safe).
+	global lock
+	lock = RLock()
 
 	for indicator in indicators_to_use.keys():
+		t = Thread(target = run_indicator, args = (indicator, equity_data[equity], date, equity, indicators_to_use[indicator], signal_date_range, buy_sell_count))
+		threads.append(t)
+		t.start()
 
-		indicator_date_range = [date - timedelta(days = x) for x in range(0, signal_date_range)]
+	for thread in threads:
+		# Only proceed once all the child threads have concluded and we have a final
+		# number for buy_sell_count
+		thread.join()
 
-		# We invert the indicator_date_range so that the most recent indication (on which the loop
-		# would short circuit) is the first one read, which is likely to be most accurate
-		# given the data.
-		for range_date in indicator_date_range[::-1]:
-
-			# We short citcuit this loop to give a binary view of whether or not we should
-			# be buying or selling this equity. If, for example, an indicator indicated
-			# "SELL" for 8 days in a row, we don't want this repeated "SELL" value to skew
-			# our count value. Consistency of a result over time does not imply that we are
-			# more sure of that result on the given date.
-
-			if indicator(equity_data[equity], date, equity, indicators_to_use[indicator]) == "SELL":
-				buy_sell_count -= 1
-				break
-
-			elif indicator(equity_data[equity], date, equity, indicators_to_use[indicator]) == "BUY":
-				buy_sell_count += 1
-				break
-	return buy_sell_count
+	return buy_sell_count[0]
 
 
 '''
@@ -73,10 +119,10 @@ def multiple_equity_simulator(starting_capital, signal_date_range, start_date, e
 
 	import collections
 
-	indicators_to_use = {stochastic_oscillator: (20, 80, 14), simple_sma: (30, 90), price_crossover: (30,), rsi: (30, 70, 30), price_crossover: (90,)}
+	indicators_to_use = {stochastic_oscillator: (20, 80, 14), simple_sma: (30, 90), price_crossover: (30,), rsi: (30, 70, 30), price_crossover: (90,), momentum: (14,)}
 	
 	# List of equities to trade between
-	equities = ["ANCX", "FOXF", "BLFS", "ITI", "CFFI"]
+	equities = ["AMZN", "FOXF", "BLFS", "ITI", "CFFI"]
 
 	# Dictionary mapping each equity with its historical stock data
 	equity_data = {ticker: get_historical_data(ticker, start=start_date, end=end_date, output_format='pandas') for ticker in equities}
@@ -96,13 +142,9 @@ def multiple_equity_simulator(starting_capital, signal_date_range, start_date, e
 	for date in date_range:
 
 		equities_signals = {key: 0 for key in equities} # Stores the buy/sell count for each equity
-		#equities_signals = collections.OrderedDict(sorted(equities_signals_dict.items())) # Using an ordered dict so buys and sells are deterministic
 
 		for equity in equities:
 			equities_signals[equity] = find_buy_sell_count(equity, equity_data, indicators_to_use, date, signal_date_range)
-
-		#print(date.strftime("%Y-%m-%d") + " : " + str(dict(equities_signals)))
-		#print(" " * len(date.strftime("%Y-%m-%d")) + " : " + str(portfolio))
 
 		# Find the N most buyable equities
 		most_buyable_equity = max(equities_signals, key=equities_signals.get)
@@ -143,7 +185,6 @@ def multiple_equity_simulator(starting_capital, signal_date_range, start_date, e
 	cash_out_portfolio(portfolio, date, equity_data, end_date, price_type, capital)
 
 
-
 if __name__ == "__main__":
 
 	# Launch interface
@@ -154,7 +195,7 @@ if __name__ == "__main__":
 		defaults = input("Run with default settings? (y/n): ")
 
 	if defaults.lower() == "y":
-		multiple_equity_simulator(1000, 7, datetime(2015, 1, 25), datetime(2018, 8, 1))
+		multiple_equity_simulator(1000, 7, datetime(2015, 1, 25), datetime(2015, 7, 31))
 
 	elif defaults.lower() == "n":
 		user_input = []
