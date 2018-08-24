@@ -2,7 +2,17 @@
 
 This repository represents the current state of an ambitious project on my part to implement and simulate a version of every major stock trading indicator used today.
 
-If there's an indicator I'm missing that you think I should include, don't hesitate to get in touch or open an issue!
+Currently supported indicators:
+
+* Buy and hold (not really an indicator, but a control against which others can be measured).
+* Simple Moving Averages
+* Price Crossover Moving Average
+* Bollinger Bands
+* Money Flow Index
+* Relative Strength Index
+* Stochastic Oscillator
+
+If there's an indicator which is not yet implemented that you would like me to include, don't hesitate to get in touch or open an issue!
 
 ## Getting Started
 Welcome to the project! Thank you for stopping by.
@@ -21,10 +31,17 @@ The following installation instructions assume a familiarity running commands in
 $ git clone [project_url]
 ```
 
-2. Edit the trading simulator file with the parameters you wish to simulate, then run the file.
+2. Edit the trading simulator file with the parameters you wish to simulate, then run one of the trading simulators. 
 ```
-$ python3 trading_simulator.py
+$ python3 trading_simulator_single.py
 ```
+or 
+```
+$ python3 trading_simulator_multiple.py
+```
+
+The file `trading_simulator_single.py` allows the user to specify the indicators they would like to run, then compares performance between those indicators on a user-specified equity over a period of time. The file `trading_simulator_multiple.py` allows the user to specify a portfolio of equities to trade between, and then uses a trading strategy based on majority rule amongst a set of indicators to balance capital between equities in the portfolio.
+
 
 ## Deployment
 
