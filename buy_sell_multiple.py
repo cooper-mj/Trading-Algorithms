@@ -51,20 +51,24 @@ Simulates selling the entire portfolio. Prints out the net amount of
 capital at the end.
 '''
 def cash_out_portfolio(portfolio, date, equity_data, end_date, price_type, capital):
+	date_rebase = False # Only print out message about amending the end date once.
+
 	for equity in portfolio.keys():
 		try:
 			end_price = float(equity_data[equity].loc[equity_data[equity]["date"] == end_date.strftime("%Y-%m-%d")][price_type].iloc[0])
 		except (KeyError, IndexError):
 		# If the exact end date is not in our database, print an error message, and set end_date to be the previous date
 		# that appears in the database.
-			new_end_date = max(date for date in equity_data[equity]["date"] if date < end_date.strftime("%Y-%m-%d"))
-			print("Your selected end date was not found in the database. Ending on " + new_end_date + " instead of " + end_date.strftime("%Y-%m-%d") + ".")
+			if not date_rebase:
+				new_end_date = max(date for date in equity_data[equity]["date"] if date < end_date.strftime("%Y-%m-%d"))
+				print("Your selected end date was not found in the database. Ending on " + new_end_date + " instead of " + end_date.strftime("%Y-%m-%d") + ".")
+				date_rebase = True
 			end_price = float(equity_data[equity].loc[equity_data[equity]["date"] == new_end_date][price_type].iloc[0])
 
 		cprint("Selling " + str(round(portfolio[equity], 2)) + " shares of " + equity + " at " + str(round(end_price, 2)) + " for " + str(round(portfolio[equity] * end_price, 2)) + " dollars.", 'cyan')
 
 		capital += portfolio[equity] * end_price
-	cprint("Finished with " + str(capital) + " dollars.", 'cyan')
+	cprint("Finished with " + str(round(capital, 2)) + " dollars.", 'cyan')
 
 
 
