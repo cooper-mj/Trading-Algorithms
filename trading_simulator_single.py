@@ -59,7 +59,7 @@ def print_introduction_message(indicator, indicators_to_use):
 		cprint("Buy Bound: " + str(indicators_to_use[money_flow_index][2]), color='cyan')
 
 	elif indicator == momentum:
-		cprint("Money Flow Index Algorithm:", attrs=['underline', 'bold'])
+		cprint("Momentum Algorithm:", attrs=['underline', 'bold'])
 		cprint("Period Length: " + str(indicators_to_use[momentum][0]) + " days.", color='cyan')
 
 '''
@@ -83,9 +83,7 @@ def single_equity_simulator(starting_capital, ticker, start_date, end_date, pric
 	# use, the sell bound, and the buy bound). At the top of each indicator function, these
 	# values are extracted. Peruse the code for your desired indicator function to see exactly
 	# which parameters it takes into its tuple.
-	indicators_to_use = {momentum: (12,)}
-	#{money_flow_index: (14, 80, 20)}
-	#{stochastic_oscillator: (20, 80, 14), simple_sma: (30, 90), buy_and_hold: (), price_crossover: (30,), rsi: (30, 70, 30)}
+	indicators_to_use = {bollinger_bands: (14, 2), price_crossover: (14,), momentum: (12,), money_flow_index: (14, 80, 20), stochastic_oscillator: (20, 80, 14), simple_sma: (30, 90), buy_and_hold: (), price_crossover: (30,), rsi: (30, 70, 30)}
 
 	for indicator in indicators_to_use.keys():
 
@@ -144,8 +142,10 @@ def single_equity_simulator(starting_capital, ticker, start_date, end_date, pric
 			num_shares = 0
 
 		cprint("Finished with " + str(round(capital, 2)) + " dollars.", color='cyan')
-		cprint("Made money in " + str(correct[0]) + " out of " + str(round(correct[1], 2)) + " decisions. Accuracy: " + str(float(correct[0])/correct[1]), color='cyan')
-
+		try:
+			cprint("Made money in " + str(correct[0]) + " out of " + str(round(correct[1], 2)) + " decisions. Accuracy: " + str(float(correct[0])/correct[1]), color='cyan')
+		except ZeroDivisionError:
+			print("No decisions made in the given period.")
 
 if __name__ == "__main__":
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 		defaults = input("Run with default settings? (y/n): ")
 
 	if defaults.lower() == "y":
-		single_equity_simulator(1000, ticker, datetime(2015, 1, 25), datetime(2018, 8, 1))
+		single_equity_simulator(1000, ticker, datetime(2018, 8, 1), datetime(2018, 10, 1))
 
 
 	elif defaults.lower() == "n":
